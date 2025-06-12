@@ -25,6 +25,9 @@ export default defineConfig({
                     dest: 'fonts',               
                 },
             ],
+            watch: {
+                reloadPageOnChange: true,
+            },
         }),
     ],
 });
