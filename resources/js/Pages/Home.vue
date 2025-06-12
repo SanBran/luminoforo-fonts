@@ -9,7 +9,12 @@ const selectedCategory = ref(null);
 const selectedSubCategory = ref(null);
 const filteredFonts = ref([]);
 const fontStyles = ref("");
-const text = ref(store.globalText);
+const text = computed({
+  get: () => store.globalText,
+  set: (value) => {
+    store.globalText = value;
+  }
+});
 const caseMode = ref(0);
 const selectedFonts = ref([])
 const isItalic = ref()
@@ -70,8 +75,8 @@ const stopChanging = () => {
 // Ajustar tamaño de fuente individualmente para cada card
 const resizeFont = (fontName) => {
     nextTick(() => {
-        const fontElement = fontElements.value[fontName];
-
+        const fontElement = fontElements.value[fontName];;
+        
         if (fontElement) {
             let parent = fontElement.parentElement;
             let maxHeight = parent.clientHeight;
@@ -95,6 +100,7 @@ const resizeFont = (fontName) => {
 
 const toggleCase = (index) => {
     calculateFontSize()
+    
     caseMode.value = index;
 };
 
@@ -112,11 +118,10 @@ const toggleSelect = () => {
 };
 
 const handlePreview = (value) => {
-    
-    fontPreview.value = value;
+    fontPreview.value = value; 
 
     nextTick(() => {
-        calculateFontSize();
+        resizeFont(value.styleName); // Ejecutar solo cuando el DOM esté actualizado
     });
 };
 
@@ -227,9 +232,13 @@ watchEffect(() => {
     
 });
 
-watch(() => text.value, resizeFont);
+watchEffect(() => {
+    console.log(text.value);
+  nextTick(() => resizeFont());
+});
 
 watch(text, () => {
+    
   nextTick(() => {
     calculateFontSize();
   });
@@ -238,6 +247,7 @@ watch(text, () => {
 onMounted(async () => {
     try {
         const response = await axios.get("/api/fonts");
+        
         fonts.value = response.data;
         filteredFonts.value = flattenFonts(response.data);
         updateFontStyles(filteredFonts.value);
@@ -257,10 +267,10 @@ onUnmounted(() => {
 <template>
     <div class=" w-full relative ">
 
-        <div v-if="fontPreview" id="preview" class="fixed w-screen h-screen flex justify-center pt-14 bg-violet-300 z-50">
+        <div v-if="fontPreview" id="preview" class="fixed w-screen h-screen flex justify-center pt-14 bg-violet-200 z-50">
             <button @click="handleClose" class="absolute top-4 right-12 font-semibold">Close X</button>
             <div ref="card" class="relative flex flex-col justify-center items-center bg-white w-11/12 h-5/6 " >
-                <div class="absolute w-full flex justify-between top-0 px-20 py-5 gap-3 z-50">
+                <div class="absolute w-full flex justify-between top-0 px-5 sm:px-20 py-5 gap-3 z-50">
                     <div class="relative flex gap-2 text-slate-400 z-50">
                        
                                 <button 
@@ -473,8 +483,6 @@ onUnmounted(() => {
             </div>
         </div>
     </div>
-
-
 </template>
 
 

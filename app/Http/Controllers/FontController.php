@@ -14,10 +14,19 @@ class FontController extends Controller
         // Recorrer todas las carpetas dentro de fonts/
         foreach (File::directories($fontsPath) as $categoryPath) {
             $categoryName = basename($categoryPath);
+
+            // Obtener subcategorías
+            $subCategoryPaths = File::directories($categoryPath);
+
+            // Validar que la categoría tenga al menos una subcategoría
+            if (empty($subCategoryPaths)) {
+                continue; // No tiene subcategorías, no la agregamos
+            }
+
             $categories[$categoryName] = [];
 
             // Recorrer subcategorías dentro de la categoría actual
-            foreach (File::directories($categoryPath) as $subCategoryPath) {
+            foreach ($subCategoryPaths as $subCategoryPath) {
                 $subCategoryName = basename($subCategoryPath);
                 $categories[$categoryName][$subCategoryName] = [];
 
